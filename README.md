@@ -1,5 +1,43 @@
 # External telemetry overlay prototype
 
+## Debug update — 2026.10.28-debug1
+
+Download a fresh ZIP and run the new `rust_overlay.py`; its title includes the
+version above. The supplied offsets are unchanged. The previous error
+`Windows enumeration failed: error 5` did not distinguish process discovery
+from module discovery. Error 5 means Windows denied that particular API call;
+it does not establish anything about the supplied offsets.
+
+The update includes:
+
+- Exact API names, flags, PID, Windows error codes and system error text.
+- Toolhelp process discovery with a filtered `tasklist.exe` fallback.
+- Toolhelp module discovery with a documented PSAPI fallback. Both errors are
+  retained if access fails; the program does not bypass process protection.
+- Manual PID input: Task Manager → Details → RustClient.exe → PID, then
+  enter that number and click **Use PID**. This skips automatic process search;
+  it does not grant module enumeration or memory-read permissions.
+- A live debug panel, **Copy debug log**, and rotating persistent logs under
+  `%LOCALAPPDATA%\RustOverlay\logs\rust-overlay-debug.log` (2 MB per file,
+  three retained backups). The actual location appears in the menu.
+- Stage labels for GOM, object-list nodes, player reads and camera matrix reads;
+  module addresses and entity/filter/projection counters.
+- Optional **Trace every memory read**. Enable before starting the reader for
+  a full address/size trace on disk. The UI samples successful read trace lines
+  to stay responsive. Actual memory bytes and player names are not logged.
+
+To reproduce: start Rust, launch the debug script, click **Find Rust process**,
+and inspect the stage-specific status. If discovery fails, try the manual PID.
+Click **Copy debug log** after the failure and share that text for diagnosis.
+Logs identify the environment and contain module addresses; review before sharing.
+If Rust runs elevated, a privilege mismatch may cause access denial. Matching
+privileges may help ordinary access but does not guarantee that a protected
+process will permit enumeration or reads.
+
+Thirteen development checks pass, including simulated error-5 diagnostics,
+fallback routing, transient snapshot retry, PID entry and persistent log copying.
+Windows API calls and live Rust integration still need Windows testing.
+
 ## Single-file menu (recommended)
 
 Download this repository using **Code → Download ZIP**, extract it, and open
@@ -38,7 +76,7 @@ snapshot does not prove correct player data. No anti-cheat bypass is included.
 Use a borderless game on the primary monitor at 1920×1080 and 100% scaling for
 the initial attempt. Windows/live-game testing has not been performed here.
 
-Six offscreen Linux checks cover demo/menu updates, synthetic entity traversal
+Offscreen Linux checks cover demo/menu updates, synthetic entity traversal
 and projection, missing-camera rejection, automatic layout rejection, simulated
 access failure, and reader shutdown. They do not validate Windows API calls or
 live Rust compatibility. Run them with:
