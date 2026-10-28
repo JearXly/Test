@@ -1,5 +1,54 @@
 # External telemetry overlay prototype
 
+## Single-file menu (recommended)
+
+Download this repository using **Code → Download ZIP**, extract it, and open
+PowerShell in the extracted folder. Use 64-bit Python 3.11 or newer:
+
+```powershell
+py -m pip install PySide6==6.10.2
+py rust_overlay.py
+```
+
+`rust_overlay.py` contains its own menu, overlay, Windows process/module
+enumeration and read-only memory reader. It does not import the other project
+scripts, need a separate config file, or require a second terminal. PySide6 is
+the only external package. Settings are saved through Qt's user settings.
+
+1. Click **Start demo** to check the overlay and customize its appearance.
+2. For live attempts, start Rust, then click **Find Rust process**.
+3. Leave module selection at **Auto — check supplied layout** and click
+   **Start read-only reader**. Auto discovers module load addresses and tests
+   the supplied GOM layout only in modules large enough to contain that offset.
+4. Read the status in the menu. Access denial or layout failure means no live
+   ESP is available; this program cannot repair outdated offsets or bypass
+   protected process access. There is no need to type a module address.
+5. **Stop / clear** removes all overlay marks. **Exit** stops the worker, closes
+   its process handle, and exits both windows.
+
+Boxes, names, distance, health bars, snaplines, crosshair, maximum range, color,
+font size, line width and overlay FPS update immediately from the menu. The
+read loop runs at up to 20 Hz; rendering runs independently. Keep the menu
+available on the taskbar; the overlay itself is click-through.
+
+**This is not a verified working ESP for Rust build 26140533.** Supplied offsets
+remain unverified. Automatic module checks eliminate manual base entry, but
+they do not prove game-build compatibility. A readable camera or an empty
+snapshot does not prove correct player data. No anti-cheat bypass is included.
+Use a borderless game on the primary monitor at 1920×1080 and 100% scaling for
+the initial attempt. Windows/live-game testing has not been performed here.
+
+Six offscreen Linux checks cover demo/menu updates, synthetic entity traversal
+and projection, missing-camera rejection, automatic layout rejection, simulated
+access failure, and reader shutdown. They do not validate Windows API calls or
+live Rust compatibility. Run them with:
+
+```powershell
+py -m unittest -v test_single_overlay
+```
+
+## Legacy separate scripts
+
 This is a configurable external overlay with an experimental read-only Windows
 memory adapter. **Compatibility with Rust build 26140533 is unverified.** It
 does not bypass EAC or provide detection guarantees. The supplied layouts may
