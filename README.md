@@ -1,154 +1,88 @@
-# <p>**Stake-frontend-clone 🌟🔬📚**
+# External telemetry overlay prototype
 
-<img  src="https://readme-typing-svg.herokuapp.com?color=45ffaa&size=40&width=900&height=80&lines=Welcome-to-Stake-frontend-clone"/>
-</p>
+This is a configurable external overlay with an experimental read-only Windows
+memory adapter. **Compatibility with Rust build 26140533 is unverified.** It
+does not bypass EAC or provide detection guarantees. The supplied layouts may
+fail on the installed game; a working live Rust ESP has not been demonstrated.
 
-**Stake-frontend-clone** is a frontend clone of [Stake](https://stake.com/).💡📈
+## Windows 11
 
-<table align="center">
-    <thead align="center">
-        <tr border: 2px;>
-            <td><b>🌟 Stars</b></td>
-            <td><b>🍴 Forks</b></td>
-            <td><b>🐛 Issues</b></td>
-            <td><b>🔔 Open PRs</b></td>
-            <td><b>🔕 Close PRs</b></td>
-        </tr>
-     </thead>
-    <tbody>
-      <tr>
-          <td><img alt="Stars" src="https://img.shields.io/github/stars/dscnsec/Stake-frontend-clone?style=flat&logo=github"/></td>
-          <td><img alt="Forks" src="https://img.shields.io/github/forks/dscnsec/Stake-frontend-clone?style=flat&logo=github"/></td>
-          <td><img alt="Issues" src="https://img.shields.io/github/issues/dscnsec/Stake-frontend-clone?style=flat&logo=github"/></td>
-          <td><img alt="Open Pull Requests" src="https://img.shields.io/github/issues-pr/dscnsec/Stake-frontend-clone?style=flat&logo=github"/></td>
-          <td><img alt="Closed Pull Requests" src="https://img.shields.io/github/issues-pr-closed/dscnsec/Stake-frontend-clone?style=flat&color=critical&logo=github"/></td>
-      </tr>
-    </tbody>
-</table>
+Install Python 3.11 or newer, then from this directory:
 
-![212284100-561aa473-3905-4a80-b561-0d28506553ee](https://github.com/user-attachments/assets/d0a16ee3-1d69-429b-9686-6d7320320fda)
-
-### This project is now OFFICIALLY accepted for
-
-<div align="center">
-  
-![hacktober](https://github.com/user-attachments/assets/6c493f3d-c2ce-409c-8cc5-afbc096b3ba3)
-
-</div>
-
-<br>
-
-![212284100-561aa473-3905-4a80-b561-0d28506553ee](https://github.com/user-attachments/assets/d0a16ee3-1d69-429b-9686-6d7320320fda)
-
-## 📚 Table of Contents
-
-- [Technical Stack](#teachnicalStack)
-- [Prerequisite](#prerequisite)
-- [Running the Application](#running-the-application)
-- [Contribution](#contribution)
-- [Code of Conduct](#code-of-conduct)
-
-<a name="teachnicalStack"></a>
-
-## 🛠️ Technical Stack
-
-| **Technology**         | **Description**          |
-| ---------------------- | ------------------------ |
-| **🌐 Frontend**        | React + Vite             |
-| **🧪 Version Control** | Git                      |
-| **📦 Package Manager** | pnpm                      |
-| **💻 Environment**     | Development with VS Code |
-
-<a name="prerequisite"></a>
-
-## Prerequisite
-
-- PNPM
-
-<a name="running-the-application"></a>
-
-## Running the Application
-
-### 1. Star the Repository ⭐
-
-First and foremost, please star the project by clicking the "Star" button at the top of the repository page. This helps us know that you find the project valuable.
-
-![Screenshot 2023-09-24 at 21-28-52 dakshsinghrathore_ISRO-web This website aims to adapt SpaceX's official website by incorporating ISRO's content offering a unique fusion of both organizations](https://github.com/dakshsinghrathore/ISRO-web/assets/115932772/bddb5110-6c8b-4a2e-91f8-29fc86e07806)
-
-### 2. Fork the Repository 🔗
-
-To contribute, you will need to fork the Stake-frontend-clone repository to your own GitHub account. This can be done by clicking the "Fork" button at the top right corner of the repository page.
-
-![fork](https://github.com/dakshsinghrathore/ISRO-web/assets/115932772/9cbcfdea-2c23-47e1-8137-917b5838db5e)
-
-### 3. Clone the Repository
-
-Now, you should clone your forked repository to your local development environment. Use the following command, replacing `[your_username]` with your GitHub username:
-
-```bash
-git clone https://github.com/[your_username]/Stake-frontend-clone.git
-
+```powershell
+py -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements.txt
+.\.venv\Scripts\python overlay.py --demo
 ```
 
-### 4. Change the working directory
+The primary-screen overlay is transparent, always on top, and click-through.
+Use windowed/borderless mode. Stop it with Ctrl+C in the launching terminal or
+terminate its Python process in Task Manager. Windows behavior has not been
+validated in this Linux development environment.
 
-Change the working directory to the project directory:
+Edit `config.json` while running: changes reload every second. Configure box,
+name, distance, health-bar, snapline and crosshair visibility, color, line width,
+font size, maximum range and refresh rate. Invalid config retains the previous
+settings. Health is interpreted on a 0–100 scale.
 
-```bash
-cd Stake-frontend-clone
+Without `--demo`, the overlay accepts UTF-8 JSON UDP packets on **127.0.0.1:27841**.
+Coordinates are primary-screen logical pixels, origin top-left; `x,y` are the
+box top-left. Producers must perform projection and DPI conversion themselves.
+Packets are snapshots; stale snapshots disappear. There is no bundled producer
+verified for current Rust. Example payload:
 
+```json
+{"entities":[{"x":400,"y":200,"w":80,"h":180,"name":"Example","distance":42,"health":75}]}
 ```
 
-### 5. Install the dependencies
+## Offset research
 
-Install the dependies of the project to run the server:
+The public source https://github.com/GlebYoutuber/RustOffsets was inspected at
+revision `f2193c9ef7806da201360f393270ad67b4482921`. Its README gives no compatible
+game build. Its offsets are **not verified for current Facepunch Rust** and were
+not copied into this project. A current build identifier, verified entity-list
+layout, camera layout and access mechanism are required for live integration.
 
-```bash
-pnpm i
+## Experimental supplied-layout reader
 
+`memory_reader.py` uses Windows `OpenProcess` and `ReadProcessMemory` with read
+rights only. It walks the attached tagged-object layout, finds camera tag 5 and
+player tag 6, reads the supplied transforms, names and health, projects standing
+boxes and sends snapshots to the overlay. It never writes game memory.
+
+The attachment supplies GOM offset `0x125D5C0` without identifying its owning
+module. **You must establish that module and its current load base first**;
+ASLR changes bases between runs. Do not substitute an invented base address.
+The inventory and active-item offsets also conflict between the supplied text
+and attachment; this reader does not use those fields. Neither source establishes
+compatibility with build 26140533.
+
+Start the overlay without demo in one terminal:
+
+```powershell
+.\.venv\Scripts\python overlay.py
 ```
 
-### 6. Run the server
+In another terminal, replace `PID` with the RustClient.exe process ID and
+`VERIFIED_HEX_BASE` with the verified module base address, including `0x`:
 
-Run the server:
-
-```bash
-pnpm run dev
-
+```powershell
+.\.venv\Scripts\python memory_reader.py --pid PID --module-base VERIFIED_HEX_BASE --width 1920 --height 1080
 ```
 
-### 7. Click on the link
+Use the primary monitor at 1920×1080, 100% Windows scaling, borderless mode, and
+a game window covering that monitor. Position assumes Y-up world space; matrix
+indexing follows the supplied transpose routine with screen Y flipped downward.
+Boxes use an approximate 1.8-unit standing height, not bones. Team filtering,
+visibility checks, crouch height and distinguishing the local player reliably
+are not implemented. Players within one unit of the camera are omitted.
 
-Click the link shown in terminal or open your browser and search for:
+If Windows denies process access, the reader reports the error and exits; no
+protection bypass is implemented. Invalid roots/cameras generate `READ FAILED`
+messages and clear the overlay. Individual invalid/destroyed players are skipped.
+An empty snapshot does not prove the offsets are correct. Report the exact
+diagnostic and the source/build provenance of any corrected layouts.
 
-```bash
-http://localhost:5173
-
-```
-
-<a name="contribution"></a>
-
-## Contribution
-
-Welcome to Stake-frontend-clone, before contributing to the project please go through this -
-
-### Component-Based Structure
-
-- We use a component-based structure with React, keeping UI elements modular and reusable. All UI components should go in the `src/components/ui/` folder to maintain consistency and organization.
-
-### Contributor Guidelines:
-
-- Ensure components are reusable across the app.
-- Place components logically under `ui/` (e.g., forms, buttons, etc.).
-- Keep components focused on a single task for simplicity and reusability.
-
-Also go through our contribution guidelines [CONTRIBUTING.md](https://github.com/dscnsec/Stake-frontend-clone/blob/main/CONTRIBUTING.md). If you have any doubts about guidelines, please open an issue regarding that , we will help for it. **Your PR should follow [CONTRIBUTING.md](https://github.com/dscnsec/Stake-frontend-clone/blob/main/CONTRIBUTING.md) guidelines**.
-
-<a name="code-of-conduct"></a>
-
-## Code of Conduct
-
-This project follows [CODE OF CONDUCT](https://github.com/dscnsec/Stake-frontend-clone/blob/main/CODE_OF_CONDUCT.md)
-Star ⭐ the project if you like it,working and contributing with us ❤️.
-
-# Big thanks to all the contributors!
+Validation performed on Linux: synthetic pointer-chain traversal and projection,
+behind-camera rejection and cyclic-list termination. Live Windows process access
+and Rust rendering remain untested.

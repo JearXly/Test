@@ -1,0 +1,15 @@
+{
+  "port": 27841,
+  "fps": 60,
+  "max_distance": 300,
+  "color": "#45ffaa",
+  "line_width": 2,
+  "font_size": 12,
+  "boxes": true,
+  "names": true,
+  "distance": true,
+  "health": true,
+  "snaplines": false,
+  "crosshair": false,
+  "stale_seconds": 1.0
+}
